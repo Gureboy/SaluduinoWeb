@@ -2,21 +2,29 @@
 #define SALUDUINOWEB_H
 
 #include <ESP8266WebServer.h>
+#include <WiFiManager.h>
 
 class SaluduinoWeb {
 public:
+    SaluduinoWeb();
     void begin();
-    void handleClient();
+    void handleRoot();
+    void handleRegister();
+    void handleLogin();
+    void handleLogout();
+    void handleSuccess();
+    void handleError();
+    void handleOpcionesAvanzadas();
+    
 private:
     ESP8266WebServer server;
-
-    void handleInicio();
-    void handleAgregarPaciente();
-    void handleVerPacientes();
-    void handleEliminar();
-    void handleOpcionesAvanzadas();
-    void handleAgregarIP();
+    WiFiManager wifiManager;
+    String registeredUsername;
+    String registeredPassword;
+    String loggedInUser;
+    void sendResponse(String html);
 };
 
-#endif // SALUDUINOWEB_H
+#endif
+
 
