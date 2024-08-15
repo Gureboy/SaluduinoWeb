@@ -1,33 +1,21 @@
 #include "SaluduinoWeb.h"
-#include <FS.h>
 
-// Constructor
-SaluduinoWeb::SaluduinoWeb() : server(80) {}
-
-// Inicializa WiFiManager y el servidor web
 void SaluduinoWeb::begin() {
-    // Configuración de WiFiManager
-    wifiManager.autoConnect("Saluduino_AP");
+    server.on("/", HTTP_GET, [this]() { handleInicio(); });
+    server.on("/agregar", HTTP_GET, [this]() { handleAgregarPaciente(); });
+    server.on("/ver", HTTP_GET, [this]() { handleVerPacientes(); });
+    server.on("/eliminar", HTTP_GET, [this]() { handleEliminar(); });
+    server.on("/avanzadas", HTTP_GET, [this]() { handleOpcionesAvanzadas(); });
+    server.on("/agregar_ip", HTTP_POST, [this]() { handleAgregarIP(); });
 
-    // Configuración del servidor web
-    server.on("/", HTTP_GET, std::bind(&SaluduinoWeb::handleRoot, this));
-    server.on("/agregar", HTTP_GET, std::bind(&SaluduinoWeb::handleAgregar, this));
-    server.on("/ver", HTTP_GET, std::bind(&SaluduinoWeb::handleVer, this));
-    server.on("/eliminar", HTTP_GET, std::bind(&SaluduinoWeb::handleEliminar, this));
-    server.on("/avanzadas", HTTP_GET, std::bind(&SaluduinoWeb::handleOpcionesAvanzadas, this));
-    server.on("/hub", HTTP_GET, std::bind(&SaluduinoWeb::handleHub, this));
-
-    // Iniciar el servidor
     server.begin();
 }
 
-// Maneja las solicitudes de clientes
 void SaluduinoWeb::handleClient() {
     server.handleClient();
 }
 
-// Página principal
-void SaluduinoWeb::handleRoot() {
+void SaluduinoWeb::handleInicio() {
     String html = R"rawliteral(
     <!DOCTYPE HTML>
     <html lang="es">
@@ -55,7 +43,7 @@ void SaluduinoWeb::handleRoot() {
                 <a class="nav-link" href="#"><i class="fas fa-bars"></i></a>
               </li>
               <li class="nav-item d-none d-sm-inline-block">
-                <a href="/" class="nav-link">Inicio</a>
+                <a href="/" class="nav-link active">Inicio</a>
               </li>
             </ul>
           </nav>
@@ -68,15 +56,21 @@ void SaluduinoWeb::handleRoot() {
             <nav class="mt-2">
               <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <li class="nav-item">
-                  <a href="/avanzadas" class="nav-link">
-                    <i class="nav-icon fas fa-cogs"></i>
-                    <p>Opciones Avanzadas</p>
+                  <a href="/ver" class="nav-link">
+                    <i class="nav-icon fas fa-eye"></i>
+                    <p>Ver Pacientes</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="/hub" class="nav-link">
-                    <i class="nav-icon fas fa-clinic-medical"></i>
-                    <p>Hub Enfermero</p>
+                  <a href="/agregar" class="nav-link">
+                    <i class="nav-icon fas fa-plus"></i>
+                    <p>Agregar Paciente</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="/eliminar" class="nav-link">
+                    <i class="nav-icon fas fa-trash"></i>
+                    <p>Eliminar Paciente</p>
                   </a>
                 </li>
               </ul>
@@ -91,17 +85,7 @@ void SaluduinoWeb::handleRoot() {
           </div>
           <div class="content">
             <div class="container-fluid">
-              <div class="row">
-                <div class="col-md-4">
-                  <a href="/ver" class="btn btn-primary btn-lg btn-block">Ver Pacientes</a>
-                </div>
-                <div class="col-md-4">
-                  <a href="/agregar" class="btn btn-success btn-lg btn-block">Agregar Paciente</a>
-                </div>
-                <div class="col-md-4">
-                  <a href="/eliminar" class="btn btn-danger btn-lg btn-block">Eliminar Paciente</a>
-                </div>
-              </div>
+              <p>Bienvenido al sistema de monitoreo de pacientes.</p>
             </div>
           </div>
         </div>
@@ -115,8 +99,7 @@ void SaluduinoWeb::handleRoot() {
     server.send(200, "text/html", html);
 }
 
-// Página para agregar pacientes
-void SaluduinoWeb::handleAgregar() {
+void SaluduinoWeb::handleAgregarPaciente() {
     String html = R"rawliteral(
     <!DOCTYPE HTML>
     <html lang="es">
@@ -197,13 +180,13 @@ void SaluduinoWeb::handleAgregar() {
                 </div>
                 <div class="form-group">
                   <label for="bpm">BPM:</label>
-                  <input type="number" id="bpm" name="bpm" class="form-control" required>
+                  <input type="text" id="bpm" name="bpm" class="form-control" required>
                 </div>
                 <div class="form-group">
                   <label for="temperatura">Temperatura:</label>
-                  <input type="number" id="temperatura" name="temperatura" class="form-control" step="0.1" required>
+                  <input type="text" id="temperatura" name="temperatura" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-success">Agregar</button>
+                <button type="submit" class="btn btn-primary">Agregar Paciente</button>
               </form>
             </div>
           </div>
@@ -218,8 +201,7 @@ void SaluduinoWeb::handleAgregar() {
     server.send(200, "text/html", html);
 }
 
-// Página para ver pacientes
-void SaluduinoWeb::handleVer() {
+void SaluduinoWeb::handleVerPacientes() {
     String html = R"rawliteral(
     <!DOCTYPE HTML>
     <html lang="es">
@@ -284,13 +266,13 @@ void SaluduinoWeb::handleVer() {
         <div class="content-wrapper">
           <div class="content-header">
             <div class="container-fluid">
-              <h1 class="m-0 text-dark">Ver Pacientes</h1>
+              <h1 class="m-0 text-dark">Lista de Pacientes</h1>
             </div>
           </div>
           <div class="content">
             <div class="container-fluid">
-              <!-- Aquí se debería agregar código para mostrar la lista de pacientes -->
-              <p>Aquí se mostrarán los datos de los pacientes.</p>
+              <p>Aquí se mostrará la lista de pacientes registrados.</p>
+              <!-- Aquí deberías agregar el código para mostrar los pacientes -->
             </div>
           </div>
         </div>
@@ -304,7 +286,6 @@ void SaluduinoWeb::handleVer() {
     server.send(200, "text/html", html);
 }
 
-// Página para eliminar pacientes
 void SaluduinoWeb::handleEliminar() {
     String html = R"rawliteral(
     <!DOCTYPE HTML>
@@ -375,8 +356,13 @@ void SaluduinoWeb::handleEliminar() {
           </div>
           <div class="content">
             <div class="container-fluid">
-              <!-- Aquí se debería agregar código para eliminar pacientes -->
-              <p>Aquí se eliminarán los pacientes.</p>
+              <form action="/eliminar_paciente" method="post">
+                <div class="form-group">
+                  <label for="id">ID del Paciente:</label>
+                  <input type="text" id="id" name="id" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-danger">Eliminar Paciente</button>
+              </form>
             </div>
           </div>
         </div>
@@ -390,7 +376,6 @@ void SaluduinoWeb::handleEliminar() {
     server.send(200, "text/html", html);
 }
 
-// Página de opciones avanzadas
 void SaluduinoWeb::handleOpcionesAvanzadas() {
     String html = R"rawliteral(
     <!DOCTYPE HTML>
@@ -467,16 +452,13 @@ void SaluduinoWeb::handleOpcionesAvanzadas() {
           </div>
           <div class="content">
             <div class="container-fluid">
-              <!-- Formulario para agregar nuevas IPs -->
               <form action="/agregar_ip" method="post">
                 <div class="form-group">
-                  <label for="ip">IP del dispositivo:</label>
+                  <label for="ip">IP del Dispositivo:</label>
                   <input type="text" id="ip" name="ip" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-success">Agregar IP</button>
+                <button type="submit" class="btn btn-primary">Agregar IP</button>
               </form>
-              <!-- Aquí se debería agregar código para gestionar las IPs -->
-              <p>Aquí se gestionarán las IPs de los dispositivos ESP8266.</p>
             </div>
           </div>
         </div>
@@ -490,30 +472,8 @@ void SaluduinoWeb::handleOpcionesAvanzadas() {
     server.send(200, "text/html", html);
 }
 
-void setup() {
-    Serial.begin(115200);
-    WiFiManager wifiManager;
-    wifiManager.autoConnect("Saluduino_AP");
-
-    server.on("/agregar", HTTP_GET, []() {
-        SaluduinoWeb::handleAgregar();
-    });
-
-    server.on("/ver", HTTP_GET, []() {
-        SaluduinoWeb::handleVer();
-    });
-
-    server.on("/eliminar", HTTP_GET, []() {
-        SaluduinoWeb::handleEliminar();
-    });
-
-    server.on("/avanzadas", HTTP_GET, []() {
-        SaluduinoWeb::handleOpcionesAvanzadas();
-    });
-
-    server.begin();
+void SaluduinoWeb::handleAgregarIP() {
+    // Aquí se debería procesar la IP agregada y realizar la conexión con el dispositivo.
+    server.send(200, "text/html", "<h1>IP agregada exitosamente</h1>");
 }
 
-void loop() {
-    server.handleClient();
-}
