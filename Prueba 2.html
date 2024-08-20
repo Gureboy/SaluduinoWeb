@@ -1,0 +1,132 @@
+const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Enfermero</title>
+  <!-- AdminLTE CSS -->
+  <link rel="stylesheet" href="https://adminlte.io/themes/v3/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="https://adminlte.io/themes/v3/dist/css/adminlte.min.css">
+  <style>
+    .content-wrapper {
+      background-color: #f4f6f9;
+    }
+    .container {
+      margin: 20px;
+    }
+    .kanban-board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini">
+  <div class="wrapper">
+    <header class="main-header">
+      <nav class="navbar navbar-expand navbar-dark">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#"><i class="fas fa-bars"></i></a>
+          </li>
+          <li class="nav-item d-none d-sm-inline-block">
+            <a href="/" class="nav-link">Saluduino</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <aside class="main-sidebar elevation-4">
+      <a href="/" class="brand-link">
+        <span class="brand-text font-weight-light">Saluduino</span>
+      </a>
+      <div class="sidebar">
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <li class="nav-item">
+              <a href="/avanzadas" class="nav-link">
+                <i class="nav-icon fas fa-cogs"></i>
+                <p>Opciones Avanzadas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/hub" class="nav-link">
+                <i class="nav-icon fas fa-clinic-medical"></i>
+                <p>Hub Enfermero</p>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+    <div class="content-wrapper">
+      <div class="content-header">
+        <div class="container-fluid">
+          <div class="kanban-board-header">
+            <h1 class="m-0 text-dark">Hub Enfermero</h1>
+            <button id="btnDownloadPDF" class="btn btn-primary">Descargar PDF</button>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-body">
+                  <div class="kanban-board">
+                    <div class="kanban-col">
+                      <div class="kanban-header bg-primary">Cama 1</div>
+                      <div class="kanban-body">
+                        <div class="kanban-item">
+                          <span>Paciente: Juan Pérez</span><br>
+                          <span>Medicamentos: Paracetamol</span><br>
+                          <span>Observaciones: Temperatura normal</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="kanban-col">
+                      <div class="kanban-header bg-warning">Cama 2</div>
+                      <div class="kanban-body">
+                        <div class="kanban-item">
+                          <span>Paciente: Ana López</span><br>
+                          <span>Medicamentos: Ibuprofeno</span><br>
+                          <span>Observaciones: Ritmo cardíaco elevado</span>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Agregar más columnas y filas según sea necesario -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="main-footer">
+      <strong>Saluduino - Sistema de Monitoreo &copy; 2024</strong>
+    </footer>
+  </div>
+
+  <!-- jQuery y jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+  <script>
+    // Función para descargar el contenido como PDF
+    $('#btnDownloadPDF').click(function() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text('Hub Enfermero - Reporte', 10, 10);
+      doc.text('Cama 1 - Paciente: Juan Pérez', 10, 20);
+      doc.text('Medicamentos: Paracetamol', 10, 30);
+      doc.text('Observaciones: Temperatura normal', 10, 40);
+      doc.text('Cama 2 - Paciente: Ana López', 10, 60);
+      doc.text('Medicamentos: Ibuprofeno', 10, 70);
+      doc.text('Observaciones: Ritmo cardíaco elevado', 10, 80);
+      doc.save('HubEnfermero-Reporte.pdf');
+    });
+  </script>
+</body>
+</html>
+)rawliteral";
