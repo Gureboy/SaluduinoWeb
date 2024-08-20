@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inicio</title>
+  <title>Inicio - Saluduino</title>
   <link rel="stylesheet" href="https://adminlte.io/themes/v3/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="https://adminlte.io/themes/v3/dist/css/adminlte.min.css">
   <style>
@@ -12,6 +12,28 @@
     }
     .container {
       margin: 20px;
+    }
+    .status-indicator {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .status-normal {
+      background-color: green;
+    }
+    .status-warning {
+      background-color: red;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 50%, 100% {
+        opacity: 1;
+      }
+      25%, 75% {
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -60,6 +82,17 @@
       </div>
       <div class="content">
         <div class="container-fluid">
+          <!-- Mostrar Paciente con Parámetros Fuera de lo Normal -->
+          <div class="card card-danger">
+            <div class="card-header">
+              <h3 class="card-title">Alerta: Parámetros fuera de lo normal</h3>
+            </div>
+            <div class="card-body">
+              <p><span class="status-indicator status-warning"></span>Paciente: Juan Pérez - Ritmo Cardiaco: 120 BPM, Temperatura: 38.5°C</p>
+            </div>
+          </div>
+
+          <!-- Botones de gestión de pacientes -->
           <div class="row">
             <div class="col-md-4">
               <a href="/ver" class="btn btn-primary btn-lg btn-block">Ver Pacientes</a>
@@ -69,6 +102,17 @@
             </div>
             <div class="col-md-4">
               <a href="/eliminar" class="btn btn-danger btn-lg btn-block">Eliminar Paciente</a>
+            </div>
+          </div>
+
+          <!-- Pacientes con parámetros normales -->
+          <div class="card card-success mt-4">
+            <div class="card-header">
+              <h3 class="card-title">Pacientes con Parámetros Normales</h3>
+            </div>
+            <div class="card-body">
+              <p><span class="status-indicator status-normal"></span>Paciente: Ana García - Ritmo Cardiaco: 72 BPM, Temperatura: 36.7°C</p>
+              <p><span class="status-indicator status-normal"></span>Paciente: Carlos Martínez - Ritmo Cardiaco: 75 BPM, Temperatura: 37.0°C</p>
             </div>
           </div>
         </div>
