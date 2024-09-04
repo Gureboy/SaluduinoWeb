@@ -1,0 +1,182 @@
+const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Enfermero</title>
+  <link rel="stylesheet" href="https://adminlte.io/themes/v3/plugins/fontawesome-free/css/all.min.css">
+  <link rel="stylesheet" href="https://adminlte.io/themes/v3/dist/css/adminlte.min.css">
+  <style>
+    .content-wrapper {
+      background-color: #f4f6f9;
+    }
+    .container {
+      margin: 20px;
+    }
+    .kanban-board-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body class="hold-transition sidebar-mini">
+  <div class="wrapper">
+    <header class="main-header">
+      <nav class="navbar navbar-expand navbar-dark">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#"><i class="fas fa-bars"></i></a>
+          </li>
+          <li class="nav-item d-none d-sm-inline-block">
+            <a href="/" class="nav-link">Saluduino</a>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    <aside class="main-sidebar elevation-4">
+      <a href="/" class="brand-link">
+        <span class="brand-text font-weight-light">Saluduino</span>
+      </a>
+      <div class="sidebar">
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <li class="nav-item">
+              <a href="/avanzadas" class="nav-link">
+                <i class="nav-icon fas fa-cogs"></i>
+                <p>Opciones Avanzadas</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/hub" class="nav-link">
+                <i class="nav-icon fas fa-clinic-medical"></i>
+                <p>Hub Enfermero</p>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </aside>
+    <div class="content-wrapper">
+      <div class="content-header">
+        <div class="container-fluid">
+          <div class="kanban-board-header">
+            <h1 class="m-0 text-dark">Hub Enfermero</h1>
+            <button id="btnDownloadPDF" class="btn btn-primary">Descargar PDF</button>
+          </div>
+        </div>
+      </div>
+      <div class="content">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Agregar Información del Paciente</h3>
+                </div>
+                <div class="card-body">
+                  <form id="formAgregarPaciente">
+                    <div class="form-group">
+                      <label for="nombrePaciente">Nombre del Paciente</label>
+                      <input type="text" class="form-control" id="nombrePaciente" placeholder="Nombre del paciente">
+                    </div>
+                    <div class="form-group">
+                      <label for="medicamentos">Medicamentos Administrados</label>
+                      <input type="text" class="form-control" id="medicamentos" placeholder="Medicamentos">
+                    </div>
+                    <div class="form-group">
+                      <label for="observaciones">Observaciones</label>
+                      <textarea class="form-control" id="observaciones" rows="3" placeholder="Observaciones"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Agregar Paciente</button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Pacientes Registrados</h3>
+                </div>
+                <div class="card-body">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Medicamentos</th>
+                        <th>Observaciones</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tablaPacientes">
+                      <!-- Aquí se agregan las filas con los datos de los pacientes -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="main-footer">
+      <strong>Saluduino - Sistema de Monitoreo &copy; 2024</strong>
+    </footer>
+  </div>
+
+  <!-- jQuery y jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+  <script>
+    // Aquí se manejará la lógica para agregar pacientes
+    document.getElementById('formAgregarPaciente').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const nombre = $('#nombrePaciente').val();
+      const medicamentos = $('#medicamentos').val();
+      const observaciones = $('#observaciones').val();
+      
+      if(nombre && medicamentos && observaciones) {
+        // Agregar los datos del paciente a la tabla
+        $('#tablaPacientes').append(
+          `<tr>
+            <td>${nombre}</td>
+            <td>${medicamentos}</td>
+            <td>${observaciones}</td>
+            <td><button class="btn btn-danger btnEliminarPaciente">Eliminar</button></td>
+          </tr>`
+        );
+        // Limpiar el formulario
+        $('#formAgregarPaciente')[0].reset();
+      }
+    });
+
+    // Manejar la eliminación de pacientes
+    $(document).on('click', '.btnEliminarPaciente', function() {
+      $(this).closest('tr').remove();
+    });
+
+    // Descargar PDF con los datos de los pacientes
+    $('#btnDownloadPDF').click(function() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text('Hub Enfermero - Reporte de Pacientes', 10, 10);
+      let y = 20;
+
+      $('#tablaPacientes tr').each(function() {
+        const nombre = $(this).find('td:eq(0)').text();
+        const medicamentos = $(this).find('td:eq(1)').text();
+        const observaciones = $(this).find('td:eq(2)').text();
+
+        doc.text(`Paciente: ${nombre}`, 10, y);
+        doc.text(`Medicamentos: ${medicamentos}`, 10, y + 10);
+        doc.text(`Observaciones: ${observaciones}`, 10, y + 20);
+        y += 30;
+      });
+
+      doc.save('HubEnfermero-Reporte.pdf');
+    });
+  </script>
+</body>
+</html>
+)rawliteral";
