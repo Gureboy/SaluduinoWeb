@@ -1,24 +1,57 @@
-const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hub Enfermero</title>
-  <!-- AdminLTE CSS -->
+  <title>Hub Enfermero - Saluduino</title>
   <link rel="stylesheet" href="https://adminlte.io/themes/v3/plugins/fontawesome-free/css/all.min.css">
   <link rel="stylesheet" href="https://adminlte.io/themes/v3/dist/css/adminlte.min.css">
   <style>
-    .content-wrapper {
-      background-color: #f4f6f9;
+    .card-header {
+      background-color: #007bff;
+      color: white;
     }
-    .container {
-      margin: 20px;
+    .btn-custom {
+      background-color: #007bff;
+      color: white;
     }
-    .kanban-board-header {
+    .btn-custom:hover {
+      background-color: #0056b3;
+      color: white;
+    }
+    .kanban-board {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-wrap: wrap;
+    }
+    .kanban-col {
+      flex: 1;
+      margin-right: 10px;
+      background: #fff;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .kanban-header {
+      padding: 10px;
+      font-weight: bold;
+    }
+    .kanban-body {
+      padding: 10px;
+    }
+    .kanban-item {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .alert-success {
+      display: none;
+      margin-top: 15px;
+    }
+    .preview-container {
+      margin-top: 15px;
+      display: none;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background-color: #f9f9f9;
     }
   </style>
 </head>
@@ -31,7 +64,7 @@ const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
             <a class="nav-link" href="#"><i class="fas fa-bars"></i></a>
           </li>
           <li class="nav-item d-none d-sm-inline-block">
-            <a href="/" class="nav-link">Saluduino</a>
+            <a href="/" class="nav-link">Inicio</a>
           </li>
         </ul>
       </nav>
@@ -44,13 +77,25 @@ const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
         <nav class="mt-2">
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <li class="nav-item">
-              <a href="/avanzadas" class="nav-link">
-                <i class="nav-icon fas fa-cogs"></i>
-                <p>Opciones Avanzadas</p>
+              <a href="/agregar-paciente" class="nav-link">
+                <i class="nav-icon fas fa-user-plus"></i>
+                <p>Agregar Paciente</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="/hub" class="nav-link">
+              <a href="/quitar-paciente" class="nav-link">
+                <i class="nav-icon fas fa-user-minus"></i>
+                <p>Quitar Paciente</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/lista-pacientes" class="nav-link">
+                <i class="nav-icon fas fa-list"></i>
+                <p>Lista de Pacientes</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="/hub-enfermero" class="nav-link active">
                 <i class="nav-icon fas fa-clinic-medical"></i>
                 <p>Hub Enfermero</p>
               </a>
@@ -62,41 +107,75 @@ const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
     <div class="content-wrapper">
       <div class="content-header">
         <div class="container-fluid">
-          <div class="kanban-board-header">
-            <h1 class="m-0 text-dark">Hub Enfermero</h1>
-            <button id="btnDownloadPDF" class="btn btn-primary">Descargar PDF</button>
-          </div>
+          <h1 class="m-0 text-dark">Hub Enfermero</h1>
         </div>
       </div>
       <div class="content">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-6">
               <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Actualizar Datos del Paciente</h3>
+                </div>
                 <div class="card-body">
-                  <div class="kanban-board">
-                    <div class="kanban-col">
-                      <div class="kanban-header bg-primary">Cama 1</div>
-                      <div class="kanban-body">
-                        <div class="kanban-item">
-                          <span>Paciente: Juan Pérez</span><br>
-                          <span>Medicamentos: Paracetamol</span><br>
-                          <span>Observaciones: Temperatura normal</span>
-                        </div>
-                      </div>
+                  <form id="formActualizarDatos">
+                    <div class="form-group">
+                      <label for="inputPaciente">Nombre del Paciente</label>
+                      <input type="text" class="form-control" id="inputPaciente" placeholder="Ingrese el nombre del paciente" required>
                     </div>
-                    <div class="kanban-col">
-                      <div class="kanban-header bg-warning">Cama 2</div>
-                      <div class="kanban-body">
-                        <div class="kanban-item">
-                          <span>Paciente: Ana López</span><br>
-                          <span>Medicamentos: Ibuprofeno</span><br>
-                          <span>Observaciones: Ritmo cardíaco elevado</span>
-                        </div>
-                      </div>
+                    <div class="form-group">
+                      <label for="inputTemperatura">Temperatura</label>
+                      <input type="number" class="form-control" id="inputTemperatura" placeholder="Ingrese la temperatura en °C" step="0.1" required>
                     </div>
-                    <!-- Agregar más columnas y filas según sea necesario -->
-                  </div>
+                    <div class="form-group">
+                      <label for="inputOxigenacion">Oxigenación</label>
+                      <input type="number" class="form-control" id="inputOxigenacion" placeholder="Ingrese la oxigenación en %" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="inputObservaciones">Observaciones</label>
+                      <textarea class="form-control" id="inputObservaciones" placeholder="Ingrese observaciones adicionales"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label for="inputEnfermero">Nombre del Enfermero</label>
+                      <input type="text" class="form-control" id="inputEnfermero" placeholder="Ingrese su nombre" required>
+                    </div>
+                    <button type="submit" class="btn btn-custom">Guardar Datos</button>
+                    <div class="alert alert-success" role="alert">
+                      Datos del paciente guardados exitosamente.
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Generar Reporte</h3>
+                </div>
+                <div class="card-body">
+                  <form id="formGenerarReporte">
+                    <div class="form-group">
+                      <label for="inputFechaReporte">Fecha del Reporte</label>
+                      <input type="date" class="form-control" id="inputFechaReporte" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="inputHoraReporte">Hora del Reporte</label>
+                      <input type="time" class="form-control" id="inputHoraReporte" required>
+                    </div>
+                    <button type="button" class="btn btn-custom" id="btnPreviewReporte">Vista Previa del Reporte</button>
+                    <div class="preview-container" id="previewContainer">
+                      <h4>Vista Previa del Reporte</h4>
+                      <p><strong>Fecha:</strong> <span id="previewFecha"></span></p>
+                      <p><strong>Hora:</strong> <span id="previewHora"></span></p>
+                      <p><strong>Paciente:</strong> <span id="previewPaciente"></span></p>
+                      <p><strong>Temperatura:</strong> <span id="previewTemperatura"></span></p>
+                      <p><strong>Oxigenación:</strong> <span id="previewOxigenacion"></span></p>
+                      <p><strong>Observaciones:</strong> <span id="previewObservaciones"></span></p>
+                      <p><strong>Enfermero:</strong> <span id="previewEnfermero"></span></p>
+                      <button type="submit" class="btn btn-custom">Generar y Descargar Reporte PDF</button>
+                    </div>
+                  </form>
                 </div>
               </div>
             </div>
@@ -113,20 +192,56 @@ const char hubEnfermeroHTML[] PROGMEM = R"rawliteral(
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
   <script>
-    // Función para descargar el contenido como PDF
-    $('#btnDownloadPDF').click(function() {
+    $('#formActualizarDatos').on('submit', function(e) {
+      e.preventDefault();
+      $('.alert-success').show();
+    });
+
+    $('#btnPreviewReporte').on('click', function() {
+      const fecha = $('#inputFechaReporte').val();
+      const hora = $('#inputHoraReporte').val();
+      const paciente = $('#inputPaciente').val();
+      const temperatura = $('#inputTemperatura').val();
+      const oxigenacion = $('#inputOxigenacion').val();
+      const observaciones = $('#inputObservaciones').val();
+      const enfermero = $('#inputEnfermero').val();
+
+      $('#previewFecha').text(fecha);
+      $('#previewHora').text(hora);
+      $('#previewPaciente').text(paciente);
+      $('#previewTemperatura').text(temperatura);
+      $('#previewOxigenacion').text(oxigenacion);
+      $('#previewObservaciones').text(observaciones);
+      $('#previewEnfermero').text(enfermero);
+
+      $('#previewContainer').show();
+    });
+
+    $('#formGenerarReporte').on('submit', function(e) {
+      e.preventDefault();
+      
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.text('Hub Enfermero - Reporte', 10, 10);
-      doc.text('Cama 1 - Paciente: Juan Pérez', 10, 20);
-      doc.text('Medicamentos: Paracetamol', 10, 30);
-      doc.text('Observaciones: Temperatura normal', 10, 40);
-      doc.text('Cama 2 - Paciente: Ana López', 10, 60);
-      doc.text('Medicamentos: Ibuprofeno', 10, 70);
-      doc.text('Observaciones: Ritmo cardíaco elevado', 10, 80);
-      doc.save('HubEnfermero-Reporte.pdf');
+      
+      const fecha = $('#inputFechaReporte').val();
+      const hora = $('#inputHoraReporte').val();
+      const paciente = $('#inputPaciente').val();
+      const temperatura = $('#inputTemperatura').val();
+      const oxigenacion = $('#inputOxigenacion').val();
+      const observaciones = $('#inputObservaciones').val();
+      const enfermero = $('#inputEnfermero').val();
+
+      doc.text("Reporte del Paciente", 10, 10);
+      doc.text(`Fecha: ${fecha}`, 10, 20);
+      doc.text(`Hora: ${hora}`, 10, 30);
+      doc.text(`Paciente: ${paciente}`, 10, 40);
+      doc.text(`Temperatura: ${temperatura} °C`, 10, 50);
+      doc.text(`Oxigenación: ${oxigenacion}%`, 10, 60);
+      doc.text(`Observaciones: ${observaciones}`, 10, 70);
+      doc.text(`Enfermero: ${enfermero}`, 10, 80);
+
+      doc.save(`Reporte_${paciente}_${fecha}.pdf`);
     });
   </script>
 </body>
 </html>
-)rawliteral";
